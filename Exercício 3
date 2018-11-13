@@ -1,1 +1,157 @@
+float userValue1 = 0;
+float userValue2 = 0;
+float addValues = 0;
+float subValues1 = 0;
+float subValues2 = 0;
+float multValues = 0;
+float divValues1 = 0;
+float divValues2 = 0;
+float pow1 = 0;
+float pow2 = 0;
 
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  pinMode(11, output);
+}
+
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  Serial.print("\nInsert a number that belongs to the set of real numbers: ");
+
+  while(Serial.available() == 0){}
+  
+  // read the incoming float:
+  userValue1 = Serial.parseFloat();
+
+  // say what you got:
+  Serial.print("\nI received: ");
+  Serial.print(userValue1);
+
+  Serial.print("\nInsert another number that belongs to the set of real numbers: ");
+
+  while(Serial.available() == 0){}
+  
+  // read the incoming float:
+  userValue2 = Serial.parseFloat();
+
+  // say what you got:
+  Serial.print("\nI received: ");
+  Serial.println(userValue2);
+  
+  addValues = userValue1 + userValue2;
+  subValues1 = userValue1 - userValue2;
+  subValues2 = userValue2 - userValue1;
+  multValues = userValue1 * userValue2;
+  divValues1 = userValue1 / userValue2;
+  divValues2 = userValue2 / userValue1;
+  pow1 = pow(userValue1, userValue2);
+  pow2 = pow(userValue2, userValue1);
+  
+  Serial.print("\n The value ");
+  Serial.print(userValue1);
+  Serial.print(" plus ");
+  Serial.print(userValue2);
+  Serial.print(" and ");
+  Serial.print(userValue2);
+  Serial.print(" plus ");
+  Serial.print(userValue1);
+  Serial.print(" is equal to: ");
+  if(addValues < -3.4028235E+38 || addValues > 3.4028235E+38){
+    //o resultado está fora da gama ...
+    Serial.print(" The result is out of range, please try with a smaller number.");
+  }
+  else{
+    Serial.println(addValues);
+  }
+  
+  Serial.print("\n The value ");
+  Serial.print(userValue1);
+  Serial.print(" minus ");
+  Serial.print(userValue2);
+  Serial.print(" is equal to: ");
+  if(subValues1 < -3.4028235E+38 || subValues1 > 3.4028235E+38){
+    Serial.print(" The result is too long, please try with a smaller number.");
+  }
+  else{
+    Serial.print(subValues1);
+  }
+  
+  Serial.print("\n But the value ");
+  Serial.print(userValue2);
+  Serial.print(" minus ");
+  Serial.print(userValue1);
+  Serial.print(" is equal to: ");
+  if(subValues2 < -3.4028235E+38 || subValues2 > 3.4028235E+38){
+    Serial.print(" The result is too long, please try with a smaller number.");
+  }
+  else{
+    Serial.print(subValues2);
+  }
+  
+  Serial.print("\n The value ");
+  Serial.print(userValue1);
+  Serial.print(" times ");
+  Serial.print(userValue2);
+  Serial.print(" and ");
+  Serial.print(userValue2);
+  Serial.print(" times ");
+  Serial.print(userValue1);
+  Serial.print(" is equal to: ");
+  if(multValues < -3.4028235E+38 || multValues > 3.4028235E+38){
+    Serial.print(" The result is too long, please try with a smaller number.");
+  }
+  else{
+    Serial.print(multValues);
+  }
+  
+  Serial.print("\n The value ");
+  Serial.print(userValue1);
+  Serial.print(" divided by ");
+  Serial.print(userValue2);
+  Serial.print(" is equal to: ");
+  if(divValues1 < -3.4028235E+38 || divValues1 > 3.4028235E+38){
+    Serial.print(" The result is too long, please try with a smaller number.");
+  }
+  else{
+    Serial.print(divValues1);
+  }
+  
+  Serial.print("\n But the value ");
+  Serial.print(userValue2);
+  Serial.print(" divided by ");
+  Serial.print(userValue1);
+  Serial.print(" is equal to: ");
+    if(divValues2 < -3.4028235E+38 || divValues2 > 3.4028235E+38){
+    Serial.print(" The result is too long, please try with a smaller number.");
+  }
+  else{
+    Serial.print(divValues2);
+  }
+  
+  Serial.print("\n The value ");
+  Serial.print(userValue1);
+  Serial.print(" raised to the power of ");
+  Serial.print(userValue2);
+  Serial.print(" is equal to: ");
+
+   if(pow1 < -3.4028235E+38 || pow1 > 3.4028235E+38){
+    Serial.print(" The result is too long, please try with a smaller number.");
+  }
+  else{
+    Serial.println(pow1);
+  }
+  
+  Serial.print("\n The value ");
+  Serial.print(userValue2);
+  Serial.print(" raised to the power of ");
+  Serial.print(userValue1);
+  Serial.print(" is equal to: ");
+  if(pow2 < -3.4028235E+38 || pow2 > 3.4028235E+38){
+    Serial.print(" The result is too long, please try with a smaller number.");
+  }
+  else{
+    Serial.print(pow2);
+  }
+}
