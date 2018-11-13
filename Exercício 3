@@ -12,7 +12,7 @@ float pow2 = 0;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  pinMode(11, output);
+  pinMode(11, OUTPUT);
 }
 
 
@@ -72,7 +72,7 @@ void loop() {
   Serial.print(userValue2);
   Serial.print(" is equal to: ");
   if(subValues1 < -3.4028235E+38 || subValues1 > 3.4028235E+38){
-    Serial.print(" The result is too long, please try with a smaller number.");
+    Serial.print(" The result is out of range, please try with a smaller number.");
   }
   else{
     Serial.print(subValues1);
@@ -84,7 +84,7 @@ void loop() {
   Serial.print(userValue1);
   Serial.print(" is equal to: ");
   if(subValues2 < -3.4028235E+38 || subValues2 > 3.4028235E+38){
-    Serial.print(" The result is too long, please try with a smaller number.");
+    Serial.print(" The result is out of range, please try with a smaller number.");
   }
   else{
     Serial.print(subValues2);
@@ -100,7 +100,7 @@ void loop() {
   Serial.print(userValue1);
   Serial.print(" is equal to: ");
   if(multValues < -3.4028235E+38 || multValues > 3.4028235E+38){
-    Serial.print(" The result is too long, please try with a smaller number.");
+    Serial.print(" The result is out of range, please try with a smaller number.");
   }
   else{
     Serial.print(multValues);
@@ -124,7 +124,7 @@ void loop() {
   Serial.print(userValue1);
   Serial.print(" is equal to: ");
     if(divValues2 < -3.4028235E+38 || divValues2 > 3.4028235E+38){
-    Serial.print(" The result is too long, please try with a smaller number.");
+    Serial.print(" The result is out of range, please try with a smaller number.");
   }
   else{
     Serial.print(divValues2);
@@ -137,7 +137,7 @@ void loop() {
   Serial.print(" is equal to: ");
 
    if(pow1 < -3.4028235E+38 || pow1 > 3.4028235E+38){
-    Serial.print(" The result is too long, please try with a smaller number.");
+    Serial.print(" The result is out of range, please try with a smaller number.");
   }
   else{
     Serial.println(pow1);
@@ -149,7 +149,7 @@ void loop() {
   Serial.print(userValue1);
   Serial.print(" is equal to: ");
   if(pow2 < -3.4028235E+38 || pow2 > 3.4028235E+38){
-    Serial.print(" The result is too long, please try with a smaller number.");
+    Serial.print(" The result is out of range, please try with a smaller number.");
   }
   else{
     Serial.print(pow2);
