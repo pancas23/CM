@@ -1,1 +1,170 @@
+int n = 0;
+float value_range = 0;
+int option_chosen = 0;
+int initial_value;
+bool ascending = false;
+bool descending = false;
+int asc_or_desc = 0;
+int scan = 1;
+const int analogInPin = A0;
+float delaytime;
+int sensorValue = 0;
 
+int outputLed;
+int ledPin1 = 2;          
+int ledPin2 = 3;
+int ledPin3 = 4;
+int ledPin4 = 5;
+int ledPin5 = 6;
+int ledPin6 = 7;
+int ledPin7 = 8;
+bool state;
+
+int inPin = A3; 
+int val = 0;
+
+
+void setup() {
+  // put your setup code here, to run once:
+  
+  Serial.begin(9600);
+
+  pinMode(ledPin1 , OUTPUT);
+  pinMode(ledPin2 , OUTPUT);
+  pinMode(ledPin3 , OUTPUT);
+  pinMode(ledPin4 , OUTPUT);
+  pinMode(ledPin5 , OUTPUT);
+  pinMode(ledPin6 , OUTPUT);
+  pinMode(ledPin7 , OUTPUT);
+
+  pinMode(asc_or_desc , INPUT);
+  pinMode(inPin, INPUT);
+  
+
+  while(n == 0 || option_chosen == 2){
+    Serial.print("\nInsert a number between 3 and 7: ");
+    
+    while(Serial.available() == 0){}
+
+    n = Serial.parseInt();
+
+    if(n<3 || n>7){
+      Serial.print("\nI received: ");
+      Serial.print(n);
+      Serial.print(". This is not a valid number. Choose one of the two following options and insert its number: \n1- Use the default value.\n2- Insert a new number.");
+      
+      while(Serial.available() == 0){}
+
+      option_chosen = Serial.parseInt();
+      Serial.print("\nOption chosen is: ");
+      Serial.print(option_chosen);
+     }
+    
+    while(option_chosen != 0 && option_chosen != 1 && option_chosen != 2){
+      Serial.print(". That is not a valid option. Try again.");
+      
+      while(Serial.available() == 0){}
+      
+      option_chosen = Serial.parseInt();
+      Serial.print(option_chosen);
+    }
+  }
+
+  if(option_chosen == 1){
+    Serial.print("\nIt will be used 5 bits in ascending order with an initial value of 0.\n");
+    n = 5;
+    initial_value = 0;
+    value_range = pow(2, n)-1;
+    ascending = true;
+  }
+  
+  else{
+    Serial.print("\nI received: ");
+    Serial.println(n);
+    value_range = pow(2, n)-1;
+    Serial.print("\n\nInsert a value between 0 and ");
+    Serial.print(value_range);
+    Serial.print(" to initiate the bit scan: ");
+    
+    while(Serial.available() == 0){}
+
+    initial_value = Serial.parseInt();
+
+    Serial.print("\nI received: ");
+    Serial.print(initial_value);
+    
+    while(initial_value<0 || initial_value>value_range){
+      Serial.print(". That is not within the range. Please try again.");
+      initial_value = Serial.parseInt();
+
+      Serial.print("\nI received: ");
+      Serial.print(initial_value);
+    }
+
+    Serial.print("\n\nDo you prefer to initiate the bit scan in ascending or descending order? \nPress '1' to choose ascending or press '2' to choose descending.\n");
+
+    while(Serial.available() == 0){}
+
+    asc_or_desc = Serial.parseInt();
+
+      Serial.print("\nI received: ");
+      Serial.println(asc_or_desc);
+
+    while(asc_or_desc != 1 && asc_or_desc != 2){
+      Serial.print(". That is not a valid option. Try again.");
+      while(Serial.available() == 0){}
+      Serial.print("\nI received: ");
+      Serial.println(asc_or_desc);
+    }
+
+    if(asc_or_desc == 1){
+        ascending = true;  
+    }
+    else{
+        descending = true;  
+    }
+    
+  }
+  
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  
+    val = digitalRead(inPin);
+    sensorValue = analogRead(analogInPin);
+    delaytime = map(sensorValue, 0, 1023, 0, 2000);
+  
+    for(int i=0;i<n;i++){
+      state = bitRead(initial_value, i);
+      outputLed = i + 2;
+      digitalWrite(outputLed , state);    
+  }
+
+    if(initial_value<=0 || initial_value >= value_range){
+      scan = -scan;
+    }
+  
+    if(val == HIGH){
+      scan = -scan;
+    }
+    
+    Serial.print("\nNumber: ");
+    Serial.print(initial_value);
+    Serial.print(" - Binary: ");
+    Serial.print(initial_value, BIN);
+
+    if(option_chosen == 1 && initial_value == 0){
+      initial_value ++;
+      option_chosen = 0;
+    }
+
+    if(ascending){
+      initial_value += scan;
+    }
+    else{
+      initial_value -= scan;
+    }
+  
+  delay(delaytime);
+}
