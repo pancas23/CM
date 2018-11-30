@@ -1,1 +1,304 @@
+// include the GSM library
+#include <GSM.h>
+// PIN Number for the SIM
+#define PINNUMBER "1832"
 
+// initialize the library instances
+GSM gsmAccess;
+GSM_SMS sms;
+
+char c;
+char message[40]; // Array to save sms
+int i = 0;
+String strMessage = ""; // String that comes from message array
+int numMessage = 0; // the numbers that come from message array
+
+int n = 0; // number of bits
+float value_range = 0; // the max range
+int option_chosen = 0; // option chosen when user inserts a bit that is not between 3 and 7
+int initial_value; // scan's initial value 
+bool ascending = false; 
+bool descending = false;
+int asc_or_desc = 0; // int that stores 1 if ascending and 2 if descending
+int scan = 1; // value to change the order of the scan (if it's 1 the scan goes in ascending way, if it's -1 the scan goes in descending way)
+const int analogInPin = A0;
+float delaytime;
+int sensorValue = 0; // potentiometer value
+
+int outputLed;
+int ledPin1 = 2;          
+int ledPin2 = 3;
+int ledPin3 = 4;
+int ledPin4 = 5;
+int ledPin5 = 6;
+int ledPin6 = 7;
+int ledPin7 = 8;
+bool state; // led's state
+
+int inPin = A3; // button
+int val = 0; // stores if the button is being pressed or not
+
+// function to concatenate ints 
+int combine(int a, int b) {
+   int times = 1;
+  do{
+      times *= 10;
+  }while (times <= b);
+   return a*times + b;
+}
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+
+  pinMode(ledPin1 , OUTPUT);
+  pinMode(ledPin2 , OUTPUT);
+  pinMode(ledPin3 , OUTPUT);
+  pinMode(ledPin4 , OUTPUT);
+  pinMode(ledPin5 , OUTPUT);
+  pinMode(ledPin6 , OUTPUT);
+  pinMode(ledPin7 , OUTPUT);
+
+  pinMode(asc_or_desc , INPUT);
+  pinMode(inPin, INPUT);
+
+  Serial.println("SMS Messages Receiver");
+
+  // connection state
+  boolean notConnected = true;
+
+  // Start GSM connection
+  while (notConnected) {
+    if (gsmAccess.begin(PINNUMBER) == GSM_READY) {
+      notConnected = false;
+    } else {
+      Serial.println("Not connected");
+      delay(1000);
+    }
+  }
+
+  Serial.println("GSM initialized");
+
+  while(n == 0 || option_chosen == 2){
+    Serial.print("\nInsert a number between 3 and 7: ");
+    
+    while(Serial.available() == 0){}
+
+    n = Serial.parseInt();
+
+    if(n<3 || n>7){
+      Serial.print("\nI received: ");
+      Serial.print(n);
+      Serial.print(". This is not a valid number. Choose one of the following options: \n1- Use the default value.\n2- Insert a new number.");
+      
+      while(Serial.available() == 0){}
+
+      option_chosen = Serial.parseInt();
+      Serial.print("\nOption chosen is: ");
+      Serial.print(option_chosen);
+     }
+    
+    while(option_chosen != 0 && option_chosen != 1 && option_chosen != 2){
+      Serial.print(". That is not a valid option. Try again.");
+      
+      while(Serial.available() == 0){}
+      
+      option_chosen = Serial.parseInt();
+      Serial.print(option_chosen);
+    }
+  }
+
+  if(option_chosen == 1){
+    Serial.print("\n5 bits will be used in ascending order with an initial value of 0.\n");
+    n = 5;
+    initial_value = 0;
+    value_range = pow(2, n)-1;
+    ascending = true;
+  }
+  
+  else{
+    Serial.print("\nI received: ");
+    Serial.println(n);
+    value_range = pow(2, n)-1;
+    Serial.print("\n\nInsert a value between 0 and ");
+    Serial.print(value_range);
+    Serial.print(" to initiate the scan: ");
+    
+    while(Serial.available() == 0){}
+
+    initial_value = Serial.parseInt();
+
+    Serial.print("\nI received: ");
+    Serial.print(initial_value);
+    
+    while(initial_value<0 || initial_value>value_range){
+      Serial.print(". That is not within the range. Try again.");
+      initial_value = Serial.parseInt();
+
+      Serial.print("\nI received: ");
+      Serial.print(initial_value);
+    }
+
+    Serial.print("\n\nInitiate the bit scan in ascending or descending order? \nPress '1' to choose ascending or press '2' to choose descending.\n");
+
+    while(Serial.available() == 0){}
+
+    asc_or_desc = Serial.parseInt();
+
+    Serial.print("\nI received: ");
+    Serial.println(asc_or_desc);
+
+    while(asc_or_desc != 1 && asc_or_desc != 2){
+      Serial.print(". That is not a valid option. Try again.");
+      while(Serial.available() == 0){}
+      Serial.print("\nI received: ");
+      Serial.println(asc_or_desc);
+    }
+
+    if(asc_or_desc == 1){
+        ascending = true;  
+    }
+    else{
+        descending = true;  
+    } 
+  }
+}
+
+void loop() {
+  // If there are any SMSs available()
+  if (sms.available()) {
+
+    // Read message bytes and print them
+    while (c = sms.read()) {
+      message[i] = c;
+      i++;
+    }
+
+    for(int ii = 0; ii<15; ii++){
+       if(message[ii] == NULL){
+            break;
+       }
+       else if(!isdigit(message[ii])){
+         strMessage+=message[ii];
+       }
+       else if(isdigit(message[ii])){
+         numMessage = combine(numMessage, (message[ii] - '0')); //message[ii] - '0' serve para converter o char para número
+       }
+    }
+
+    if(strMessage == "NumeroAtual"){
+      if(numMessage<0 || numMessage>value_range){
+        Serial.print("The value ");
+        Serial.print(numMessage);
+        Serial.print(" is not within the range.");
+      }
+      else{
+        Serial.print("The initial value was changed to: ");
+        Serial.print(numMessage);
+        initial_value = numMessage;
+      }
+      numMessage = 0;
+      strMessage = "";
+    }
+    else if(strMessage == "VarrimentoCrescente"){
+      if(ascending){
+        Serial.print("The scan order is still in ascending way.");
+      }
+      else{
+        Serial.print("The scan order was changed to ascending way.");
+      }
+      ascending = true;
+      descending = false;
+      strMessage = "";
+    }
+    else if(strMessage == "VarrimentoDecrescente"){
+      if(descending){
+        Serial.print("The scan order is still in descending way.");
+      }
+      else{
+        Serial.print("The scan order was changed to descending way.");
+      }
+      ascending = false;
+      descending = true;
+      strMessage = "";
+    }
+    else if(strMessage == "AlterarVarrimento"){
+      if(ascending){
+        Serial.print("The scan order was changed to descending way.");
+      }
+      else{
+        Serial.print("The scan order was changed to ascending way.");
+      }
+      scan = -scan;
+      strMessage = "";
+    }
+    else if(strMessage == "TempoEntreNumeros"){
+      Serial.print("The delay time was changed to: ");
+      Serial.print(numMessage);
+      Serial.print("ms.");
+      delaytime = numMessage;
+      numMessage = 0;
+      strMessage = "";
+    }
+    else if(strMessage == "NumeroDeBits"){
+      if(numMessage<3 || numMessage>7){
+        Serial.print("The value ");
+        Serial.print(numMessage);
+        Serial.print(" is not between 3 and 7.");
+      }
+      else{
+        Serial.print("The bit was changed to: ");
+        Serial.print(numMessage);
+        n = numMessage;
+        value_range = pow(2, n)-1;
+      }
+      numMessage = 0;
+      strMessage = "";
+    }
+    else if(strMessage == "TerminarLigacao"){
+      gsmAccess.shutdown();
+      Serial.println("GSM terminated");
+    }
+    memset(message, 0, 40);
+  }
+
+  else{
+    sensorValue = analogRead(analogInPin);
+    delaytime = map(sensorValue, 0, 1023, 0, 2000);
+  }
+  
+    val = digitalRead(inPin);
+
+    for(int i=0;i<n;i++){
+      state = bitRead(initial_value, i);
+      outputLed = i + 2;
+      digitalWrite(outputLed , state);    
+    }
+    
+    if(initial_value<=0 || initial_value >= value_range){
+      scan = -scan;
+    }
+  
+    if(val == HIGH){
+      scan = -scan;
+    }
+    
+    Serial.print("\nNumber: ");
+    Serial.print(initial_value);
+    Serial.print(" - Binary: ");
+    Serial.print(initial_value, BIN);
+
+    if(option_chosen == 1 && initial_value == 0){
+      initial_value ++;
+      option_chosen = 0;
+    }
+
+    if(ascending){
+      initial_value += scan;
+    }
+    else{
+      initial_value -= scan;
+    }
+  
+  delay(delaytime);
+}
